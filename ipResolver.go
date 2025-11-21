@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net"
 
-	"github.com/liamdln/ip-resolve-go/internal"
+	"github.com/liamdln/ip-resolver-go/internal"
 )
 
 var ipData []internal.IPDatabase
