@@ -4,9 +4,10 @@ import (
 	"encoding/csv"
 	"os"
 	"strconv"
+	"strings"
 )
 
-type IPDatabase struct {
+type IPMetadata struct {
 	RangeStart    string
 	RangeEnd      string
 	CountryCode   string
@@ -14,8 +15,14 @@ type IPDatabase struct {
 	ASDescription string
 }
 
+// Octet is the struct that contains either IPMetadata or Child map
+type Octet struct {
+	Child map[string]*Octet
+	Value *IPMetadata
+}
+
 // LoadDb loads a database file from a given path.
-func LoadDb(filepath string) ([]IPDatabase, error) {
+func LoadDb(filepath string) (map[string]Octet, error) {
 
 	dbFile, err := os.Open(filepath)
 	if err != nil {
@@ -34,11 +41,20 @@ func LoadDb(filepath string) ([]IPDatabase, error) {
 		return nil, err
 	}
 
-	// create the ipdatabase array
-	ipData := make([]IPDatabase, 0)
+	ips := make(map[string]Octet)
 
-	// populate the ipdatabase array
+	// loop over each row and store the metadata in the ip map
 	for _, elem := range rows {
+
+		// elem[0] = range start
+		// elem[1] = range end
+		// elem[2] = ASNumber
+		// elem[3] = country code
+		// elem[5] = ASDescription
+
+		// split the ip into octets
+		octets := strings.Split(elem[0], ".")
+
 		// try convert the as number to an int
 		asNum, err := strconv.Atoi(elem[2])
 		if err != nil {
@@ -46,16 +62,39 @@ func LoadDb(filepath string) ([]IPDatabase, error) {
 			continue
 		}
 
-		// add the data to the array
-		ipData = append(ipData, IPDatabase{
-			RangeStart:    elem[0],
-			RangeEnd:      elem[1],
-			ASNumber:      asNum,
-			CountryCode:   elem[3],
-			ASDescription: elem[4],
-		})
+		// ensure the map contains the first octet, if not, initialise a map
+		if _, ok := ips[octets[0]]; !ok {
+			ips[octets[0]] = Octet{
+				Child: make(map[string]*Octet),
+			}
+		}
+
+		// ensure the map contains the second octet, if not, initialise a map
+		if _, ok := ips[octets[0]].Child[octets[1]]; !ok {
+			ips[octets[0]].Child[octets[1]] = &Octet{
+				Child: make(map[string]*Octet),
+			}
+		}
+
+		// ensure the map contains the third octet, if not, initialise a map
+		if _, ok := ips[octets[0]].Child[octets[1]].Child[octets[2]]; !ok {
+			ips[octets[0]].Child[octets[1]].Child[octets[2]] = &Octet{
+				Child: make(map[string]*Octet),
+			}
+		}
+
+		// put the fourth octet in, as we know it won't exist for this octet pattern yet
+		ips[octets[0]].Child[octets[1]].Child[octets[2]].Child[octets[3]] = &Octet{
+			Value: &IPMetadata{
+				RangeStart:    elem[0],
+				RangeEnd:      elem[1],
+				ASNumber:      asNum,
+				CountryCode:   elem[3],
+				ASDescription: elem[4],
+			},
+		}
 	}
 
-	return ipData, nil
+	return ips, nil
 
 }

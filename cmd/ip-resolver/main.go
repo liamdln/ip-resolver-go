@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	ipresolve "github.com/liamdln/ip-resolver-go"
 )
@@ -17,6 +18,7 @@ func main() {
 		panic(err)
 	}
 
+	start := time.Now()
 	// resolve the IP
 	data, err := ipresolve.ResolveIp(ip)
 	if err != nil {
@@ -24,5 +26,7 @@ func main() {
 	}
 
 	fmt.Println(data)
+
+	fmt.Printf("took %s\n", time.Since(start))
 
 }

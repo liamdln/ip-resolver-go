@@ -13,7 +13,7 @@ import (
 func TestLoadDb(t *testing.T) {
 
 	// create a tab separated row
-	fakeData := "10.0.0.1\t10.0.0.255\t5\tGB\tMy ASN Inc"
+	fakeData := "10.0.0.1\t10.0.0.128\t5\tGB\tMy ASN Ltd"
 
 	// create a temp file
 	fileLoc := filepath.Join(t.TempDir(), "fake-ip-data.tsv")
@@ -29,13 +29,15 @@ func TestLoadDb(t *testing.T) {
 		t.FailNow()
 	}
 
+	testIp := ipData["10"].Child["0"].Child["0"].Child["1"].Value
+
 	// ensure the correct data is returned
 	assert.Equal(t, fakeData, fmt.Sprintf("%s\t%s\t%d\t%s\t%s",
-		ipData[0].RangeStart,
-		ipData[0].RangeEnd,
-		ipData[0].ASNumber,
-		ipData[0].CountryCode,
-		ipData[0].ASDescription),
+		testIp.RangeStart,
+		testIp.RangeEnd,
+		testIp.ASNumber,
+		testIp.CountryCode,
+		testIp.ASDescription),
 	)
 
 }
