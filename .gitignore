@@ -2,3 +2,5 @@ cmd/ip-resolver/test.tsv
 
 .DS_Store
 ._*
+
+.vscode

@@ -1,10 +1,11 @@
-package ipresolver
+package ipresolver_test
 
 import (
 	"os"
 	"path/filepath"
 	"testing"
 
+	ipresolver "github.com/liamdln/ip-resolver-go"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,14 +22,14 @@ func TestResolveIp(t *testing.T) {
 	}
 
 	// load the file
-	err = LoadIPFile(fileLoc)
+	err = ipresolver.LoadIPFile(fileLoc)
 	if err != nil {
 		t.Logf("could not load IP file: %s", err.Error())
 		t.FailNow()
 	}
 
 	// check the ip resolves
-	data, err := ResolveIp("10.0.0.200")
+	data, err := ipresolver.ResolveIp("10.0.0.200")
 	if err != nil {
 		t.Logf("unable to resolve ip: %s", err.Error())
 	}

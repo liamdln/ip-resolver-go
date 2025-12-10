@@ -17,8 +17,8 @@ type IPMetadata struct {
 
 // Octet is the struct that contains either IPMetadata or Child map
 type Octet struct {
-	Child map[string]*Octet
-	Value *IPMetadata
+	Child map[string]Octet
+	Value IPMetadata
 }
 
 // LoadDb loads a database file from a given path.
@@ -65,27 +65,27 @@ func LoadDb(filepath string) (map[string]Octet, error) {
 		// ensure the map contains the first octet, if not, initialise a map
 		if _, ok := ips[octets[0]]; !ok {
 			ips[octets[0]] = Octet{
-				Child: make(map[string]*Octet),
+				Child: make(map[string]Octet),
 			}
 		}
 
 		// ensure the map contains the second octet, if not, initialise a map
 		if _, ok := ips[octets[0]].Child[octets[1]]; !ok {
-			ips[octets[0]].Child[octets[1]] = &Octet{
-				Child: make(map[string]*Octet),
+			ips[octets[0]].Child[octets[1]] = Octet{
+				Child: make(map[string]Octet),
 			}
 		}
 
 		// ensure the map contains the third octet, if not, initialise a map
 		if _, ok := ips[octets[0]].Child[octets[1]].Child[octets[2]]; !ok {
-			ips[octets[0]].Child[octets[1]].Child[octets[2]] = &Octet{
-				Child: make(map[string]*Octet),
+			ips[octets[0]].Child[octets[1]].Child[octets[2]] = Octet{
+				Child: make(map[string]Octet),
 			}
 		}
 
 		// put the fourth octet in, as we know it won't exist for this octet pattern yet
-		ips[octets[0]].Child[octets[1]].Child[octets[2]].Child[octets[3]] = &Octet{
-			Value: &IPMetadata{
+		ips[octets[0]].Child[octets[1]].Child[octets[2]].Child[octets[3]] = Octet{
+			Value: IPMetadata{
 				RangeStart:    elem[0],
 				RangeEnd:      elem[1],
 				ASNumber:      asNum,
